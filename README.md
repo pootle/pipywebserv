@@ -18,4 +18,6 @@ The overall design is to use the web browser as a proper app front end (in days 
 6. run the web server `python3 webserv.py` you should see a message like `Starting webserver on 192.168.1.187:8000`
 7. if you get a failure ending with `OSError: [Errno 98] Address already in use` then edit config.py and change `'port':8000`, to use another (unused..) port.
 8. on another PC on the same network (or even on the raspberry pi if you have a full desktop installation) open a web browser and put in the address from the `starting webserver` message.
+
 You should now get a screen like this:
+![alt text](rpi live image.png "web page image")
