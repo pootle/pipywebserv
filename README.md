@@ -10,7 +10,12 @@ I did want it to be usable in a closed network (i.e not connected to the interne
 The overall design is to use the web browser as a proper app front end (in days of my youth this would have been called [client-server computing](https://en.wikipedia.org/wiki/Client%E2%80%93server_model)), with each web page acting as a window would in a full app. The page can both make requests to the web server and the web server can feed event streams (following a request from the web page) back to the web page to update the page in real time - for example, to live graph the cpu utilisation or temperature.
 
 ##installation
-1. This is setup to run on Raspbian-lite or Raspbian. A few tweak are needed to run on non RaspberryPi or Raspbian setups.
+1. This is setup to run on Raspbian-lite or Raspbian. A few tweaks are needed to run on non RaspberryPi or non Raspbian setups.
 2. install git if you haven't already got it: `sudo apt-get install git`
 3. create and / or move to a suitable folder - I keep everything gitish in a folder called *gitbits*
-4. clone this repository to your raspberrypi ``
+4. clone this repository to your raspberrypi `git clone https://github.com/pootle/pipywebserv.git`
+5. move to the cloned folder `cd pipywebserv`
+6. run the web server `python3 webserv.py` you should see a message like `Starting webserver on 192.168.1.187:8000`
+7. if you get a failure ending with `OSError: [Errno 98] Address already in use` then edit config.py and change `'port':8000`, to use another (unused..) port.
+8. on another PC on the same network (or even on the raspberry pi if you have a full desktop installation) open a web browser and put in the address from the `starting webserver` message.
+You should now get a screen like this:
