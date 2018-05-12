@@ -12,7 +12,7 @@ The overall design is to use the web browser as a proper app front end (in days 
 This is derived from my older repo minimal-live-graph (now deleted), which was just a basic demo of the live graphing capability.
 
 ## installation
-1. This is setup to run on Raspbian-lite or Raspbian. A few tweaks are needed to run on non RaspberryPi or non Raspbian setups.
+1. This was setup to run on Raspbian-lite or Raspbian, however it also runs quite happily on my ubuntu laptop.
 2. install git if you haven't already got it: `sudo apt-get install git`
 3. create and / or move to a suitable folder - I keep everything gitish in a folder called *gitbits*
 4. clone this repository to your raspberrypi `git clone https://github.com/pootle/pipywebserv.git`
