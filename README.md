@@ -20,4 +20,4 @@ The overall design is to use the web browser as a proper app front end (in days 
 8. on another PC on the same network (or even on the raspberry pi if you have a full desktop installation) open a web browser and put in the address from the `starting webserver` message.
 
 You should now get a screen like this:
-![alt text](rpi live image.png "web page image")
+![alt text](rpi live graph.png "web page image")
