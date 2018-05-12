@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="base1.css">
+    <script src="smoothie.js"></script>
+    <script type="text/javascript" >
+        window.onload=init
+        function init() {
+            if (!!window.EventSource) {
+                var tempdataset = new TimeSeries()
+                var templine = new SmoothieChart({ fps: 30, millisPerPixel: 200, tooltip: false, minValue:20, maxValue:70,
+                        grid: { strokeStyle: '#555555', lineWidth: 1, millisPerLine: 5000, verticalSections: 4}});
+                templine.addTimeSeries(tempdataset,
+                        { strokeStyle:'rgb(128, 250, 128)', fillStyle:'rgba(128, 250, 128, 0.4)', lineWidth:2 });
+                templine.streamTo(document.getElementById("pitempchart"), 1000);
+                var cpudataset = new TimeSeries();
+                var cpudatasetavg = new TimeSeries();
+                var cpudataavg = 0;
+                var cpuchart = new SmoothieChart({ fps: 30, millisPerPixel: 200, tooltip: false, minValue:0, maxValue:100, 
+                        grid: { strokeStyle: '#555555', lineWidth: 1, millisPerLine: 5000, verticalSections: 4} });
+                cpuchart.addTimeSeries(cpudataset,
+                        { strokeStyle:'rgb(128, 250, 128)', fillStyle:'rgba(128, 250, 128, 0.4)', lineWidth:2 });
+                cpuchart.addTimeSeries(cpudatasetavg, 
+                        { strokeStyle:'rgb(250, 100, 128)', fillStyle:'rgba(250, 100, 128, 0.4)', lineWidth:2 });
+                cpuchart.streamTo(document.getElementById("picputime"), 1000);
+                var esource = new EventSource("dostream?s=pistatus");
+                esource.addEventListener("message", function(e) {
+                    var newinfo=JSON.parse(e.data);
+                    tempdataset.append(Date.now(),newinfo.cputemp);
+                    cpudataset.append(Date.now(), newinfo.busy*100);
+                    cpudataavg=(cpudataavg*3+newinfo.busy*100)/4;
+                    cpudatasetavg.append(Date.now(),cpudataavg);
+                    var cel = document.getElementById("picpuavg");
+                    cel.innerHTML=cpudataavg.toFixed(2)+"%";
+                }, false);
+                esource.addEventListener("open", function(e) {
+                    var tempel = document.getElementById("appmessage");
+                    tempel.innerHTML="update Connection established";
+                }, false);
+                esource.addEventListener("error", function(e) {
+                    if (e.readyState == EventSource.CLOSED) {
+                        var tempel = document.getElementById("appmessage");
+                        tempel.innerHTML="update connection lost";
+                    }
+                }, false);
+            } else {
+                var tempel = document.getElementById("note");
+                tempel.innerHTML="I'm sorry Dave, live updates not supported by this browser";
+            }
+        }
+    </script>
+</head>
+<body>
+   <div id="header">
+       <table width="100%">
+           <tr><td rowspan="2"><h2>Nice page heading</h2></td><td id="appstatus">app status goes here</td></td></tr>
+           <tr><td id="appmessage">messages go here</td></tr>
+       </table>
+       <table>
+           <tr><th>CPU temperature</th>
+               <th title="total cpu load - instant and smoothed" ><span>CPU load </span><span id="picpuavg" ></span></th>
+           </tr>
+           <tr>
+               <td><canvas id="pitempchart" width="400" height="100"></canvas></td>
+               <td><canvas id="picputime" width="400" height="100"></canvas></td>
+           </tr>
+       </table>
+   </div>
+   <div>
+       <h2>your content here</h2>
+   </div>
+</body>
+</html>
