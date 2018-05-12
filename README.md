@@ -9,6 +9,8 @@ I did want it to be usable in a closed network (i.e not connected to the interne
 
 The overall design is to use the web browser as a proper app front end (in days of my youth this would have been called [client-server computing](https://en.wikipedia.org/wiki/Client%E2%80%93server_model)), with each web page acting as a window would in a full app. The page can both make requests to the web server and the web server can feed event streams (following a request from the web page) back to the web page to update the page in real time - for example, to live graph the cpu utilisation or temperature.
 
+This is derived from my older repo minimal-live-graph (now deleted), which was just a basic demo of the live graphing capability.
+
 ## installation
 1. This is setup to run on Raspbian-lite or Raspbian. A few tweaks are needed to run on non RaspberryPi or non Raspbian setups.
 2. install git if you haven't already got it: `sudo apt-get install git`
