@@ -1,0 +1,97 @@
+body {
+    background-color: hsl(9, 45%, 23%);
+    color: hsl(171,45%,88%);
+}
+h2 {
+    margin: 0px;
+    padding: 2px 2px 2px 6px;
+}
+#header {
+    border: 2px solid black;
+    border-radius: 7px;
+    margin: 1px;
+    padding: 0px;
+}
+#appstatus {
+    text-align: right;
+}
+#appmessage {
+    text-align: center;
+}
+
+td.test {
+    background-color: black;
+}
+
+span.actbtn {
+    background-color: hsl(90,150%,75%);
+    color: black;
+    text-align: right;
+    cursor: pointer;
+}
+
+.main-table
+{
+  padding: 0;
+  margin: 0;
+  border-collapse: collapse;
+  border: 1px solid hsl(9, 45%, 5%);
+  font-size: 1.2em;
+}
+
+.main-table caption
+{
+  caption-side: bottom;
+  font-size: 1.0em;
+  font-style: italic;
+  text-align: right;
+  padding: 0.5em 0;
+}
+
+.main-table th, .main-table td
+{
+  border: 1px dotted #000;
+  padding: 0.5em;
+  text-align: left;
+}
+
+.main-table th[scope=col]
+{
+  background-color: hsl(9, 30%, 33%);
+  text-align: center;
+  border-bottom: 2px solid #000;
+  border-right: 2px solid #000;
+}
+
+.main-table th+th[scope=col]
+{
+  border-right: 1px dotted #000;
+}
+
+.main-table th[scope=row]
+{
+  background-color:  hsl(9, 30%, 33%);
+  border-right: 2px solid #000;
+  text-align: right;
+}
+
+.subhead
+{
+    font-size: 1.2em;
+    font-weight: bolder;
+}
+
+.main-table tr:nth-child(odd) td
+{
+  background-color: hsl(25, 30%, 18%);
+}
+
+.main-table tr:hover th[scope=row], .main-table tr:hover td
+{
+  background-color: hsl(171,45%,88%);
+  color: hsl(9, 30%, 33%);
+}
+.main-table td.visbtn
+{
+  cursor: pointer;
+}
