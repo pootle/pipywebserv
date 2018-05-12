@@ -1,7 +1,8 @@
 # pipywebserv
 A minimalist python web server using only python's built in libraries that uses streaming data to live graph data.
 
-There is a [video demo and brief description here](https://youtu.be/yPZpiv8XicE)
+There is a video demo and brief description here:
+[![screenshot from video](https://img.youtube.com/vi/yPZpiv8XicE/2.jpg)](https://www.youtube.com/watch?v=yPZpiv8XicE)
 
 Rather than picking up various large and hairy packages (not that I'm thinking of Apache at all!) to run a little Raspberry pi based web server for personal use, I decided to try using just the basic python libraries to see how far I could get, and to better understand some of python's libraries. In particular I wanted to be able to display in my web page, a live graph of key info about my Raspberry Pi Zero - temerature and cpu utilization for starters.
 
