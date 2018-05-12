@@ -25,7 +25,7 @@ This is derived from my older repo minimal-live-graph (now deleted), which was j
 You should now get a screen like this:
 ![alt text](https://github.com/pootle/pipywebserv/blob/master/rpi%20live%20graph.png "web page image")
 ## stopping it
-Just use <ctrl>-c twice and python will exit.
+Just use CTRL-c twice and python will exit.
 
 # The files
 + webserv.py: This is the application. Run this file using `python3 webserv.py`, or make it executable and just do `./webserv.py`.
