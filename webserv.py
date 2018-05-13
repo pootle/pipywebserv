@@ -5,7 +5,7 @@ from socketserver import ThreadingMixIn
 from queue import Queue as simplequeue
 import errno
 from urllib.parse import urlparse, parse_qs
-
+import argparse
 import json, time, sys
 
 import utils, config
@@ -23,7 +23,7 @@ class pywebhandler(http.server.BaseHTTPRequestHandler):
         if pname in self.server.mypyconf['getpaths']:
             pathdef=self.server.mypyconf['getpaths'][pname]
             if 'static'==pathdef.get('pagetype', None):
-                staticfilename=server.mypyconf['servefrom']/pathdef.get('pagefile', 'nopage')
+                staticfilename=server.mypyconf['servefrom'][pathdef.get('folder','static')]/pathdef.get('pagefile', 'nopage')
                 if staticfilename.is_file():
                     sfx=staticfilename.suffix
                     if sfx in sfxlookup:
@@ -128,12 +128,37 @@ class ThreadedHTTPServer(ThreadingMixIn, http.server.HTTPServer):
 
 if __name__ == '__main__':
     from pathlib import Path
-    serverconf=config.serverdefaults.copy()
-    p=Path(serverconf['servefrom'])
-    if p.is_dir():
-        serverconf['servefrom']=p.absolute()
-    else:
-        sys.exit('the servefrom directory in server config file is not a directory or does not exist: %s' % str(p.absolute()))
+    serverconf=config.serverdefaults.copy()                 # fetch the default server config
+    clparse = argparse.ArgumentParser(description='runs a simple webserver.')
+    clparse.add_argument('-c', '--config', help='path to optional configuration file.')
+    args=clparse.parse_args()
+    if not args.config is None:
+        configpath=Path(args.config)
+        if not configpath.with_suffix('.py').is_file():
+            sys.exit('cannot find configuration file ' + str(configpath.with_suffix('.py')))
+        incwd=str(configpath.parent) == '.'
+        if not incwd:
+            sys.path.insert(1,str(configpath.parent))
+        try:
+            configmod=importlib.import_module(configpath.stem)
+        except:
+            print('=================================:')
+            print('failed to load server config file', str(configpath))
+            print('=================================:')
+            raise
+        serverconf.update(configmod)
+    servefolds={}
+    for k, foldername in serverconf['servefrom'].items():
+        p=Path(foldername)
+        if p.is_dir():
+            servefolds[k]=p.absolute()
+        else:
+            sys.exit('the servefrom directory in server config file is not a directory or does not exist: %s' % str(p.absolute()))
+    if not 'static' in servefolds:
+        print('================================= WARNING:')
+        print("default (static) not defined in servefrom entries")
+        print('=================================:')
+    serverconf['servefrom']=servefolds
     ips=utils.findMyIp()
     if len(ips)==0:
         print('starting webserver on internal IP only (no external IP addresses found), port %d' % (serverconf['port']))
