@@ -33,9 +33,10 @@ Just use CTRL-c twice and python will exit.
 # The files
 + webserv.py: This is the application. Run this file using `python3 webserv.py`, or make it executable and just do `./webserv.py`.
 + utils.py: a couple of utility functions and classes used by webserv.py. Systeminfo can do a lot more than is used here.
-+ config.py: This defines the webserver's port and has details of all the requests it will respond to and how they are handled.
++ config.py: This defines the webserver's port and has details of all the requests it will respond to, and how they are handled.
 + static (folder):
-  + homepage.html: The single displayed page in this demo. It has a basic page layout and some js that kicks off the event stream to display the live graphs.
+  + homepage.html: The single displayed page in this demo. It has a basic page layout.
   + base1.css: a style sheet using a darkish theme for the homepage. It has some stuff not used here (yet)
+  + pipyscripts.js: the js needed to run the live graphs
   + smoothie.js: Having found several huge js graphing libraries, none of which seemed to be much good at live graphs anyway, and many of which demanded live internet connections to run, I found this little gem which is perfect for this type of use. Get an up to date version at [the smoothie charts website](http://smoothiecharts.org/). I included a version here just for convenience.
   + rasppi.ico: an icon file for the website. Stops the rude messages at the server side, but still does not display the actual icon *sigh*.
