@@ -34,9 +34,11 @@ function pipyinit() {
             tempel.innerHTML="update Connection established";
         }, false);
         esource.addEventListener("error", function(e) {
+            var tempel = document.getElementById("appmessage");
             if (e.readyState == EventSource.CLOSED) {
-                var tempel = document.getElementById("appmessage");
                 tempel.innerHTML="update connection lost";
+            } else {
+                tempel.innerHTML="update connection had an error";
             }
         }, false);
     } else {
