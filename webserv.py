@@ -43,42 +43,44 @@ class pywebhandler(http.server.BaseHTTPRequestHandler):
                     print('pywebhandler.do_GET pagefile {} does not refer to a file'.format(str(staticfilename)))
                     self.send_error(500,'page %s not found in server pages' % pinfo)
             elif 'eventstream'==pathdef.get('pagetype', None):
-                params = parse_qs(pr.query) if pr.query else {}
-                if 's' in params and len(params['s'])==1:
-                    streamparams=pathdef.get('streams',{}).get(params['s'][0],{})
-                    if 'modfunc' in streamparams:
-                        f=sys.modules[__name__].__dict__.get(streamparams['modfunc'], None)
-                    elif 'servfunc' in streamparams:
-                        f=getattr(self.server, streamparams['servfunc'], None)
-                        if not f is None and not callable(f):
-                            f=None
-                    else:
-                        print('where is the stream function? in', streamparams)
-                        send_error(500,'pywebhandler.do_GET unable to identify streaming function')
-                    if callable(f):
-                        if 'generator'==streamparams.get('streamtype', None):
-                            genr=f()
-                            tickinterval=streamparams['period']
-                            self.send_response(200)
-                            self.send_header('Content-Type', 'text/event-stream; charset=utf-8')
-                            self.end_headers()
-                            running=True
-                            while running:
-                                datats=json.dumps(next(genr))
-                                try:
-                                    self.wfile.write(('data: %s\n\n' % datats).encode('utf-8'))
-                                except Exception as e:
-                                    running=False
-                                    if e.errno!=errno.EPIPE:
-                                        raise
-                                time.sleep(tickinterval)
+                if 'obid' in pathdef:
+                    obid=pathdef['obid']
+                    if not obid in self.server.mypyobjects:
+                        #try and setup the object
+                        if obid in self.server.mypyconf['obdefs']:
+                            if 'ondemand' in self.server.mypyconf['obdefs'][obid]:
+                                obdef=self.server.mypyconf['obdefs'][obid]['ondemand']
+                                params = parse_qs(pr.query) if pr.query else {}
+                                params = {k:v if len(v)>1 else v[0] for k, v in  params.items()}
+                                params.update(obdef)
+                                print(params)
+                                self.server.mypyobjects[obid]=utils.makeClassInstance(**params)
+                            else:
+                                print("no ondemand info for object", obid)
+                                self.send_error(500,'object setup error - object info for %s not found' % pname)
                         else:
-                            send_error(500, 'pywebhandler.do_GET eventstream unknown streamtype', streamparams.get('streamtype', None))
+                            print("failed to find object definition for % in config['obdefs']" % obid)
+                            self.send_error(500,'object setup error - object for %s not found' % pname)
+                    if 'generator' == pathdef['streamtype']:
+                        tickinterval=pathdef['period']
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'text/event-stream; charset=utf-8')
+                        self.end_headers()
+                        running=True
+                        while running:
+                            datats=json.dumps(next(self.server.mypyobjects[obid]))
+                            try:
+                                self.wfile.write(('data: %s\n\n' % datats).encode('utf-8'))
+                            except Exception as e:
+                                running=False
+                                if e.errno!=errno.EPIPE:
+                                    raise
+                            time.sleep(tickinterval)
                     else:
-                        self.send_error(500,'pywebhandler.do_GET eventstream no function', f)
+                        send_error(500, 'pywebhandler.do_GET eventstream unknown streamtype', pathdef.get('streamtype', None))
                 else:
-                    print('pywebhandler.do_GET eventstream request did not include single stream id ("s")', (str(params['s'] if 's' in params else '<none>')))
-                    self.send_error(400,'s not present or not single valued')
+                    print('missing object id in path %s with pathdef %s' % (pname, str(pathdef)))
+                    self.send_error(500,'stream setup error - stream %s not found' % pname)
             else:
                 print('pywebhandler.do_GET unsupported pagetype in path definition', pathdef)
                 self.send_error(500,'something went a bit wrong!')
@@ -111,20 +113,40 @@ class ThreadedHTTPServer(ThreadingMixIn, http.server.HTTPServer):
     
     Also it allows queues of status messages to be setup which are served up as event streams on request. No session control etc. here though
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,  mypyconf, **kwargs):
         super().__init__(*args, **kwargs)
-        self.statusqueues={}
-
-    def queueupdate(self, qname, update):
-        if qname in self.statusqueues:
-            sq=self.statusqueues[qname]
+        self.mypyconf=mypyconf
+        self.mypyobjects={}
+        if 'obdefs' in self.mypyconf:
+            descs=[]
+            for oname, odef in self.mypyconf['obdefs'].items():
+                if 'setup' in odef:
+                    setupparams=odef['setup']
+                    if 'webserver' in setupparams:
+                        setupparams=setupparams.copy()
+                        setupparams['webserver']=self
+                    self.mypyobjects[oname]=utils.makeClassInstance(**setupparams)
+                    descs.append('%s:(%s)' %(oname, type(self.mypyobjects[oname]).__name__))
+                else:
+                    assert 'ondemand' in odef
+                    descs.append('%s will be setup on demand' % oname)
+            print('added objects', ', '.join(descs))
         else:
-            sq=simplequeue()
-            self.statusqueues[qname] = sq
-        sq.put(update)
-        while sq.qsize() > 5:
-            print('Q %s overflow' % qname)
-            sq.get()
+            print('no associated objects created')
+
+
+#        self.statusqueues={}
+
+#    def queueupdate(self, qname, update):
+#        if qname in self.statusqueues:
+#            sq=self.statusqueues[qname]
+#        else:
+#            sq=simplequeue()
+#            self.statusqueues[qname] = sq
+#        sq.put(update)
+#        while sq.qsize() > 5:
+#            print('Q %s overflow' % qname)
+#            sq.get()
 
 if __name__ == '__main__':
     from pathlib import Path
@@ -166,8 +188,8 @@ if __name__ == '__main__':
         print('Starting webserver on %s:%d' % (ips[0], serverconf['port']))
     else:
         print('Starting webserver on multiple ip addresses (%s), port:%d' % (str(ips), server['port']))
-    server = ThreadedHTTPServer(('',serverconf['port']),pywebhandler)
-    server.mypyconf=serverconf
+    server = ThreadedHTTPServer(('',serverconf['port']),pywebhandler, mypyconf=serverconf)
+#    server.mypyconf=serverconf
     try:
         server.serve_forever()
         print('webserver shut down')

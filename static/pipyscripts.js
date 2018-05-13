@@ -19,7 +19,7 @@ function pipyinit() {
         cpuchart.addTimeSeries(cpudatasetavg, 
                 { strokeStyle:'rgb(250, 100, 128)', fillStyle:'rgba(250, 100, 128, 0.4)', lineWidth:2 });
         cpuchart.streamTo(document.getElementById("picputime"), 1000);
-        var esource = new EventSource("dostream?s=pistatus");
+        var esource = new EventSource("pistatus?fields=busy&fields=cputemp");
         esource.addEventListener("message", function(e) {
             var newinfo=JSON.parse(e.data);
             tempdataset.append(Date.now(),newinfo.cputemp);

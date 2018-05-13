@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 """
-basic functions to check on various aspects of machine state
+basic functions to check on various aspects of machine state and other utilities
 """
 import os, time, socket
 
+from importlib import import_module as modimporter
 
 def findMyIp():
     """
@@ -116,3 +117,30 @@ class systeminfo():
         increment=self.newprocstats[useind]-self.prevprocstats[useind]
         val=increment/self.elapsed/self.jiffy/self.cpucount
         return val if index <=20 else 1-val
+
+def makeClassInstance(className, **kwargs):
+    """
+    creates an instance of the class identified by the hierarchic name, with other parameters
+    
+    className:  The hierarchic name for the required class - e.g. 'modulename.classname'
+    
+    **kwargs : all the other arguments required by the constructor
+    """
+    components = className.split('.')
+    assert len(components) > 1, "className %s is not of form <modname>.<classname>" % className
+    try:
+        mod = modimporter(components[0])
+    except ImportError:
+        print("FAILED to import module %s for className %s" % (str(components[0]), str(className)))
+        raise
+    for comp in components[1:]:
+        try:
+            mod = getattr(mod, comp)
+        except AttributeError:
+            print('FAILED to find %s in %s from className %s' % (str(comp), str(mod), str(className) ))
+            raise
+    try:
+        return mod(**kwargs)
+    except:
+        print('FAILED constructor call on %s with parameters %s' % (str(mod), str(kwargs)))
+        raise
