@@ -1,4 +1,7 @@
 # pipywebserv
+
+OBSOLETE: The package remi (pip install remi) provides all the functionality here and more
+
 A minimalist python web server using only python's built in libraries that uses streaming data to live graph data.
 
 There is a video demo and brief description here:
